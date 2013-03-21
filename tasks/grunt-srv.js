@@ -1,16 +1,21 @@
 /*global node:true*/
 /*
- * grunt-depmod
+ * grunt-srv
  *
  * Copyright (c) 2013 GoodData Corporation
  */
 module.exports = function(grunt) {
 
     var fs = require('fs');
+    var path = require('path');
+
     var mountFolder = function (connect, dir) {
-        return connect.static(require('path').resolve(dir));
+        return connect.static(path.resolve(dir));
     };
     var proxySnippet = require('grunt-connect-proxy/lib/utils').proxyRequest;
+
+    // relative to the gruntfile which uses grunt-srv
+    var certificatePath = path.resolve('./cert');
 
     grunt.initConfig({
         connect: {
@@ -18,9 +23,9 @@ module.exports = function(grunt) {
                 options: {
                     protocol: 'https',
                     port: 8443,
-                    key: fs.readFileSync('/home/petr/Downloads/con/server.key').toString(),
-                    cert: fs.readFileSync('/home/petr/Downloads/con/server.crt').toString(),
-                    ca: fs.readFileSync('/home/petr/Downloads/con/ca.crt').toString(),
+                    key: fs.readFileSync(certificatePath + '/server.key').toString(),
+                    cert: fs.readFileSync(certificatePath + '/server.crt').toString(),
+                    ca: fs.readFileSync(certificatePath + '/ca.crt').toString(),
                     passphrase: 'grunt',
                     keepalive: true,
                     middleware: function(connect) {
@@ -44,7 +49,7 @@ module.exports = function(grunt) {
                             mountFolder(connect, 'html')
                         ];
                     }
-                },
+                }
             },
             proxies: [
                 {
@@ -57,9 +62,10 @@ module.exports = function(grunt) {
             ]
         }
     });
-    grunt.loadNpmTasks('grunt-contrib-connect');
-    grunt.loadNpmTasks('grunt-connect-proxy');
-    grunt.registerTask('server', function(target) {
+
+    grunt.loadNpmTasks('grunt-srv/node_modules/grunt-contrib-connect');
+    grunt.loadNpmTasks('grunt-srv/node_modules/grunt-connect-proxy');
+    grunt.registerTask('grunt-srv', function(target) {
         grunt.task.run([
             'configureProxies',
             'connect'
