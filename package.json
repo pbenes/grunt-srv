@@ -1,0 +1,20 @@
+{
+  "name": "grunt-srv",
+  "version": "0.0.1",
+  "description": "Grunt task for running local server",
+  "repository": "",
+  "keywords": [
+    "grunt",
+    "srv"
+  ],
+  "author": "Petr Benes <petr.benes@gooddata.com>",
+  "dependencies": {
+    "grunt-contrib-connect": "git://github.com/pbenes/grunt-contrib-connect.git#protocol-option",
+    "grunt-connect-proxy": "~0.1.0",
+  },
+  "engines": {
+    "node": ">= 0.8.0"
+  },
+  "main": "lib",
+  "license": "Proprietary"
+}
