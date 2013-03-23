@@ -3,8 +3,10 @@
  *
  * Copyright (c) 2013 GoodData Corporation
  */
+
 module.exports = function(grunt) {
 
+    // load dependencies and register task
     grunt.loadNpmTasks('grunt-srv/node_modules/grunt-contrib-connect');
     grunt.loadNpmTasks('grunt-srv/node_modules/grunt-connect-proxy');
     grunt.registerTask('grunt-srv', function(target) {
@@ -13,6 +15,10 @@ module.exports = function(grunt) {
             path = require('path'),
             proxySnippet = require('grunt-connect-proxy/lib/utils').proxyRequest;
 
+        // link cookie stripper, path relative to this file
+        var cookieStripper = require('../lib/cookie_stripper.js');
+
+        // contrib-connect mount static helper
         var mountFolder = function(connect, dir) {
             return connect.static(path.resolve(dir));
         };
@@ -32,30 +38,18 @@ module.exports = function(grunt) {
             connect: {
                 server: {
                     options: {
+                        // need to use the pull-requested connect version for https to work correctly
                         protocol: 'https',
                         port: taskOptions.port,
                         key: fs.readFileSync(certificatePath + '/server.key').toString(),
                         cert: fs.readFileSync(certificatePath + '/server.crt').toString(),
                         ca: fs.readFileSync(certificatePath + '/ca.crt').toString(),
                         passphrase: 'grunt',
+
                         keepalive: true,
                         middleware: function(connect) {
                             return [
-                                function(req, res, next) {
-                                    var writeHead = res.writeHead;
-                                    res.writeHead = function(statusCode, headers) {
-                                        // headers['set-cookie'] is an array of set-cookie strings
-                                        if (headers && headers['set-cookie'] && headers['set-cookie'].length) {
-                                            headers['set-cookie'] = headers['set-cookie'].map(function(setCookieHeader) {
-                                                return setCookieHeader.replace(/(domain=[^ ]+; )/mg, '');
-                                            });
-                                        }
-
-                                        res.writeHead = writeHead;
-                                        res.writeHead.apply(this, [statusCode, headers]);
-                                    };
-                                    next();
-                                },
+                                cookieStripper,
                                 proxySnippet,
                                 mountFolder(connect, 'html')
                             ];
@@ -63,11 +57,11 @@ module.exports = function(grunt) {
                     }
                 },
                 proxies: [{
-                        context: taskOptions.backendPrefix,
-                        host: taskOptions.backendHost,
-                        port: taskOptions.backendPort,
-                        https: true,
-                        changeOrigin: true
+                    context: taskOptions.backendPrefix,
+                    host: taskOptions.backendHost,
+                    port: taskOptions.backendPort,
+                    https: true,
+                    changeOrigin: true
                 }]
             }
         });
