@@ -28,11 +28,12 @@ module.exports = function(grunt) {
             port: 8443,
             backendPrefix: '/gdc',
             backendHost: 'secure.gooddata.com',
-            backendPort: 443
+            backendPort: 443,
+            certificateDirectory: './cert'
         });
 
         // relative to the gruntfile which uses grunt-srv
-        var certificatePath = path.resolve('./cert');
+        var certificatePath = path.resolve(taskOptions.certificateDirectory);
 
         grunt.initConfig({
             connect: {
