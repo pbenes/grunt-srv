@@ -9,12 +9,10 @@
   ],
   "author": "Petr Benes <petr.benes@gooddata.com>",
   "dependencies": {
-    "grunt": "~0.4.0",
     "grunt-contrib-connect": "git://github.com/pbenes/grunt-contrib-connect.git#protocol-option",
     "grunt-connect-proxy": "~0.1.0"
   },
   "engines": {
     "node": ">= 0.8.0"
-  },
-  "license": "Proprietary"
+  }
 }
